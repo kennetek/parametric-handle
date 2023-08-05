@@ -3,6 +3,7 @@
 Handle meant to be printed with the large top face on the baseplate.
 See accompanying engineering drawing for parameter definitions. 
 Set T-Slot variables to zero to exclude them from the model. 
+Set mouse ears diameter to zero to exclude them (you probably want them to reduce warping at the corners)
 
 https://github.com/kennetek/parametric-handle
 */
@@ -22,19 +23,23 @@ h_internal = 33;
 h_thick = 17;
 h_base = 20;
 h_wide = 26; 
-h_hole = 130;
+h_hole = 140;
 r_internal = 16; 
 a_flare = 10; // [0:40]
+a_draft = 3; 
 r_fillet_int = 6;
 r_fillet_ext = 3; 
 d_hole = 6; 
-d_counter = 10;
-h_counter = 20;
+d_counter = 12;
+h_counter = 10;
 h_layer = 0.3; 
 
 /* [T-Slot Pegs] */
-h_slot_width = 8; 
-h_slot_depth = 2; 
+h_slot_width = 0; 
+h_slot_depth = 0; 
+
+/* [Mouse Ears] */
+d_mouse = 0; 
 
 
 // ===== CALCULATIONS ===== //
@@ -68,26 +73,34 @@ difference() {
         
         // internal profile
         minkowski() {
-            linear_extrude(h_wide-2*r_fillet_int+0.01, center=true)
             difference() {
-                translate([0,-h_slot_depth])
-                square([h_hole+2*h_base,2*(h_internal+h_thick+h_slot_depth)]);
-                offset(delta=r_fillet_int)
-                minkowski() {
-                    polygon([p0, p1, p2, p3]);
-                    circle(r=r_internal);
+                linear_extrude(h_wide-2*r_fillet_int+0.01, center=true)
+                difference() {
+                    translate([0,-h_slot_depth])
+                    square([h_hole+2*h_base,2*(h_internal+h_thick+h_slot_depth)]);
+                    offset(delta=r_fillet_int)
+                    minkowski() {
+                        polygon([p0, p1, p2, p3]);
+                        circle(r=r_internal);
+                    }
                 }
+                copy_mirror([0,0,1])
+                taper(r_fillet_int);
             }
             sphere(r=r_fillet_int);
         }
         
         // external profile
         minkowski() {
-            linear_extrude(h_wide-2*r_fillet_ext, center=true)
-            offset(delta = -r_fillet_ext)
-            minkowski() {
-                polygon([p6, p7, p5, p8]); 
-                circle(r=r_large);
+            difference() {
+                linear_extrude(h_wide-2*r_fillet_ext, center=true)
+                offset(delta = -r_fillet_ext)
+                minkowski() {
+                    polygon([p6, p7, p5, p8]); 
+                    circle(r=r_large);
+                }
+                copy_mirror([0,0,1])
+                taper(r_fillet_ext);
             }
             sphere(r=r_fillet_ext);
         }
@@ -100,7 +113,7 @@ difference() {
     // top chamfer
     copy_mirror([0,0,1])
     translate(normalize([0, -1, 1])*(r_fillet_ext*5))
-    translate([-1, h_internal+h_thick, h_wide/2 - r_fillet_ext])
+    translate([-1, h_internal+h_thick, h_wide/2 - r_fillet_ext - (h_internal+h_thick)*tan(a_draft)])
     rotate([-45, 0, 0])
     cube([h_hole+h_base*2+1, r_fillet_ext*10, r_fillet_ext*10]);
     
@@ -142,6 +155,13 @@ difference() {
     }
 }
 
+// mouse ears to prevent warping at corners
+if (d_mouse > 0)
+copy_mirror([0,1,0])
+copy_mirror([1,0,0])
+translate([p5[0]+r_large/sqrt(2),h_wide/2-(h_internal+h_thick)*tan(a_draft)-r_fillet_ext,h_internal+h_thick-h_layer-0.001])
+cylinder(d=d_mouse, h=h_layer);
+
 
 // ===== MODULES ===== //
 
@@ -151,3 +171,12 @@ module copy_mirror(vec=[0,1,0]) {
     mirror(vec) 
     children();
 } 
+
+module taper(off = 0) {
+    if (a_draft > 0) {
+        translate([0, 0, h_wide/2-off])
+        rotate([-a_draft, 0, 0])
+        translate([-5*h_hole, -5*(h_internal+h_thick), 0])
+        cube([h_hole*10, (h_internal+h_thick)*10, h_wide*3]);
+    }
+}
