@@ -3,3 +3,5 @@ I needed a handle for a door on an enclosure and got inspired to design it in Op
 
 [<img src="./stuff/handle.gif">]()
 [<img src="./stuff/drawing.jpg">]()
+[<img src="./stuff/slicer.jpg">]()
+
