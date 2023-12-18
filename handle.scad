@@ -19,27 +19,31 @@ $fs = 1;
 $fa = 5; 
 
 /* [General Settings] */
-h_internal = 33; 
-h_thick = 17;
-h_base = 20;
-h_wide = 26; 
-h_hole = 140;
-r_internal = 16; 
+h_internal = 33;  // 0.01
+h_thick = 17; // 0.01
+h_base = 20; // 0.01
+h_wide = 26;  // 0.01
+h_hole = 140; // 0.01
+r_internal = 16;  // 0.01
 a_flare = 10; // [0:40]
-a_draft = 3; 
-r_fillet_int = 6;
-r_fillet_ext = 3; 
-d_hole = 6; 
-d_counter = 12;
-h_counter = 10;
-h_layer = 0.3; 
+a_draft = 3;  // 0.01
+r_fillet_int = 6; // 0.01
+r_fillet_ext = 3;  // 0.01
+d_hole = 6;  // 0.01
+d_counter = 12; // 0.01
+h_counter = 10; // 0.01
+h_layer = 0.3;  // 0.01
+
+/* [Optional Hex Insert] */
+hex_width = 0; // 0.01
+hex_height = 0; // 0.01
 
 /* [T-Slot Pegs] */
-h_slot_width = 0; 
-h_slot_depth = 0; 
+h_slot_width = 0;  // 0.01
+h_slot_depth = 0;  // 0.01
 
 /* [Mouse Ears] */
-d_mouse = 0; 
+d_mouse = 0;  // 0.01
 
 
 // ===== CALCULATIONS ===== //
@@ -126,15 +130,33 @@ difference() {
     translate([h_hole/2, h_counter, 0])
     rotate([-90, 0, 0])
     cylinder(d=d_counter, h=(h_internal+h_thick)*3);
-    
-    // slit for printable hole
-    translate([h_hole/2, h_counter-h_layer, 0])
-    rotate([-90, 0, 0])
-    intersection() {
-        cylinder(d=d_counter, h=(h_internal+h_thick)*3);
-        cube([d_hole, d_counter*3, (h_internal+h_thick)*4],center=true); 
+
+    // hex insert
+    if (hex_height > 0 && hex_height > 0) {
+        translate([h_hole/2, h_counter-hex_height, 0])
+        rotate([-90, 0, 0])
+        cylinder(d = hex_width, h = hex_height+0.01, $fn=6);
+        // slit for printable hole hex
+        if (h_layer > 0) {
+            translate([h_hole/2, h_counter-h_layer-hex_height, 0])
+            rotate([-90, 0, 0])
+            intersection() {
+                cylinder(d=hex_width, h=(h_internal+h_thick)*3, $fn=6);
+                cube([d_hole, d_counter*3, (h_internal+h_thick)*4],center=true);
+            }
+        }
+    } else {
+        // slit for printable hole
+        if (h_layer > 0) {
+            translate([h_hole/2, h_counter-h_layer, 0])
+            rotate([-90, 0, 0])
+            intersection() {
+                cylinder(d=d_counter, h=(h_internal+h_thick)*3);
+                cube([d_hole, d_counter*3, (h_internal+h_thick)*4],center=true);
+            }
+        }
     }
-    
+
     // Alignment tabs for attaching to aluminum extrusion
     if (h_slot_depth > 0 || h_slot_width > 0) {
         intersection() {
