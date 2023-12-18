@@ -19,27 +19,27 @@ $fs = 1;
 $fa = 5; 
 
 /* [General Settings] */
-h_internal = 33; 
-h_thick = 17;
-h_base = 20;
-h_wide = 26; 
-h_hole = 140;
-r_internal = 16; 
+h_internal = 33;  // 0.01
+h_thick = 17; // 0.01
+h_base = 20; // 0.01
+h_wide = 26;  // 0.01
+h_hole = 140; // 0.01
+r_internal = 16;  // 0.01
 a_flare = 10; // [0:40]
-a_draft = 3; 
-r_fillet_int = 6;
-r_fillet_ext = 3; 
-d_hole = 6; 
-d_counter = 12;
-h_counter = 10;
-h_layer = 0.3; 
+a_draft = 3;  // 0.01
+r_fillet_int = 6; // 0.01
+r_fillet_ext = 3;  // 0.01
+d_hole = 6;  // 0.01
+d_counter = 12; // 0.01
+h_counter = 10; // 0.01
+h_layer = 0.3;  // 0.01
 
 /* [T-Slot Pegs] */
-h_slot_width = 0; 
-h_slot_depth = 0; 
+h_slot_width = 0;  // 0.01
+h_slot_depth = 0;  // 0.01
 
 /* [Mouse Ears] */
-d_mouse = 0; 
+d_mouse = 0;  // 0.01
 
 
 // ===== CALCULATIONS ===== //
